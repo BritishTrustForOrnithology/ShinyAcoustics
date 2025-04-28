@@ -18,7 +18,8 @@ create_controlsSERVER <- function(id,
       audio_files = NULL,
       n_files = NULL,
       file_counter = NULL,
-      file_current = NULL
+      file_current = NULL,
+      path_checked = NULL
     )
 
     #on click, get list of audio files, set index to first file
@@ -30,8 +31,6 @@ create_controlsSERVER <- function(id,
       state$n_files <- length(state$audio_files)
       state$file_counter <- NULL
       state$file_current <- NULL
-
-      # print(state$n_files)
 
       #randomise file order?
       if(randomise() == TRUE & state$n_files>0) {
@@ -47,13 +46,22 @@ create_controlsSERVER <- function(id,
         #            callbackR = message('Callback: No such path for audio')
         # )
       } else {
+        
+        #add the folder as resource path
         addResourcePath("audio", path_audio())
+        
+        #init the counter etc
         state$file_counter <- 1
         nav_button_toggles(numfiles = state$n_files,
                            nthfile = state$file_counter)
         state$file_current <- state$audio_files[state$file_counter]
-        # print(state$file_counter)
-        # print(state$file_current)
+
+        #create the checked folder
+        state$path_checked <- file.path(path_audio(), 'checked')
+        if(!dir.exists(state$path_checked)) {
+          dir.create(state$path_checked)
+        }
+        
       }
     })
 
@@ -187,43 +195,7 @@ create_controlsSERVER <- function(id,
     recent_labels <- reactiveVal(character(0))
 
 
-    # When user clicks "Add to Table"
-    # observeEvent(input$btn_submit, {
-    #   req(state$file_current)
-    #   req(input$select_label)
-    #
-    #   #get the codes for these species
-    #   selected_species <- subset(splist, select_val %in% input$select_label)
-    #   #construct the label string
-    #   label <- paste0('[',paste0("'", selected_species$code, "'", collapse = ','), ']')
-    #
-    #
-    #   #create the database row content
-    #   db_row_data <- list(batch_params$user,
-    #                       batch_params$species,
-    #                       batch_params$location,
-    #                       batch_params$time,
-    #                       file.path(path_audio(), state$file_current),
-    #                       label,
-    #                       FALSE,
-    #                       Sys.time())
-    #
-    #   #add the decision to the database
-    #   rs <- dbSendQuery(con(), 'INSERT INTO verifications (name_validator, batch_species, batch_location, batch_time, file_audio, identity, for_training, timestamp) VALUES (?, ?, ?, ?, ?, ?, ?, ?);', db_row_data)
-    #   #clear the returned set to free memory
-    #   dbClearResult(rs)
-    #
-    #   # Update recent labels (max 5)
-    #   new_label <- input$select_label
-    #   if (nzchar(new_label)) {
-    #     updated <- unique(c(new_label, recent_labels()))
-    #     recent_labels(head(updated, 5))  # Keep only last 5 unique
-    #   }
-    #   #clear form
-    #   updateSelectizeInput(session, "select_label", selected = "")
-    # })
-    #
-
+    #Observer for the submit buttons, and increment and archive
     observeEvent(input$btn_submit, {
       submit_decision(
         state = state,
@@ -237,7 +209,6 @@ create_controlsSERVER <- function(id,
         for_training = FALSE
       )
     })
-
     observeEvent(input$btn_submit4train, {
       submit_decision(
         state = state,
@@ -277,6 +248,14 @@ create_controlsSERVER <- function(id,
       )
     })
 
+    
+    
+    #simple outputs
+    output$n_files <- renderText(
+      paste0("Number of files to check = ",state$n_files)
+    )
+    
+    
     return(state)
   })
 }

@@ -10,8 +10,9 @@ createDbUI <- function(id) {
         "Please select a folder",
         class = "btn-primary"
         ),
-      textOutput(
-        ns("dir_display")
+      div(
+        style = "color: #A42A04; font-weight: bold; font-size: small",
+        textOutput(ns("dir_display"))
         ),
       textInput(
         ns("filename"),

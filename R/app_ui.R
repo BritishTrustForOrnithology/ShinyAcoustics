@@ -14,7 +14,10 @@ app_ui <- function() {
     shinyjs::useShinyjs(),
     # Initialize shinyjs
     tags$head(
-      tags$link(rel = "stylesheet", type = "text/css", href = "www/styles.css")
+      tags$link(rel = "stylesheet", type = "text/css", href = "www/styles.css"),
+      tags$head(
+        tags$style(HTML(".card-body { overflow: visible !important; }  "))
+      )
     ),
 
     #add the banner, logo and title
@@ -39,7 +42,7 @@ app_ui <- function() {
               textInput(
                 inputId = 'user',
                 label = NULL,
-                value = 'Simon',
+                value = '',
                 placeholder = 'Enter your name'
               )
             )
@@ -53,18 +56,21 @@ app_ui <- function() {
             card_body(
               fluidRow(
                 column(
-                  width = 6,
+                  width = 4,
                   shinyFilesButton(
                     id = 'file_db',
-                    label = 'Select database file',
+                    label = 'Select database',
                     title = 'Select sqlite database file',
                     multiple = FALSE,
                     class = "btn-primary"
                   )
                 ),
                 column(
-                  width = 6,
-                  textOutput('path_database')
+                  width = 8,
+                  div(
+                    style = "color: #A42A04; font-weight: bold; font-size: small",
+                    textOutput('path_database')
+                  )
                 )
               )
             )
@@ -74,30 +80,31 @@ app_ui <- function() {
         layout_columns(card(
           card_header(class = "bg-dark", 'Step 3: Parameters for this batch'),
           card_body(
-            tags$p("Complete (or enter NA) each parameter for this batch."),
+            tags$p("Complete relevant parameters (or enter NA) for this batch. These will be stored with verification decisions for later analysis"),
             fluidRow(
               column(
                 width = 3,
                 selectizeInput(
                   inputId = 'batch_species',
                   label = 'Species:',
-                  choices = c("", splist$select_val),
+                  choices = c("NA", splist$select_val),
                   multiple = FALSE,
-                  options = list(placeholder = "Start typing..."),
-                  selected = 'Robin'
+                  options = list(placeholder = "Start typing...",
+                                 dropdownParent = 'body'),
+                  selected = 'NA'
                 ),
               ),
               column(
                 width = 3,
-                textInput(inputId = 'batch_location', label = 'Location:', value = 'test'),
+                textInput(inputId = 'batch_location', label = 'Location:', value = 'NA'),
               ),
               column(
                 width = 3,
-                textInput(inputId = 'batch_time', label = 'Time period:', value = 'test'),
+                textInput(inputId = 'batch_time', label = 'Time period:', value = 'NA'),
               ),
               column(
                 width = 3,
-                textInput(inputId = 'batch_option', label = 'Optional field:', value = 'test')
+                textInput(inputId = 'batch_option', label = 'Optional field:', value = 'NA')
               )
             )#end FR
           ) #end cb
@@ -131,7 +138,10 @@ app_ui <- function() {
                     ),
                   column(
                     width = 3,
-                    textOutput('path_audio')
+                    div(
+                      style = "color: #A42A04; font-weight: bold; font-size: small",
+                      textOutput('path_audio')
+                    )
                   ),
                   column(
                     width = 3,

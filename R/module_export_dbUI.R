@@ -11,6 +11,7 @@ exportDbUI <- function(id) {
         multiple = FALSE,
         class = "btn-primary"
         ),
+      tags$p('Click the button below to create a csv extract from the database, in the same folder, with a time-stamped filename.'),
       actionButton(
         ns("export_db_btn"),
         "Export Database",

@@ -38,4 +38,35 @@ submit_decision <- function(state, input, session, splist, batch_params, path_au
 
   # Clear form
   updateSelectizeInput(session, "select_label", selected = "")
+  
+  
+  #move file and increment counters etc
+  old_loc <- file.path(path_audio(), state$file_current )
+  new_loc <- file.path(state$path_checked, state$file_current )
+  file.rename(from = old_loc, to = new_loc)
+  
+  #remove file from list
+  state$audio_files <- state$audio_files[state$audio_files != state$file_current]
+  #reduce number of files by one
+  state$n_files <- state$n_files - 1
+  
+  #update file_current if still files to check and not on last file in list
+  if(state$n_files > 0 & state$file_counter <= state$n_files) {
+    state$file_current <- state$audio_files[state$file_counter]
+  }
+  
+  #update file_current if still files to check and on last file in list
+  if(state$n_files > 0 & state$file_counter > state$n_files) {
+    #must reduce counter by one more to move it back a step to the last remaining file
+    state$file_counter <- state$file_counter - 1
+    state$file_current <- state$audio_files[state$file_counter]
+  }
+  #no files left
+  if(state$n_files == 0) {
+    state$file_counter <- 0
+    state$file_current <- NULL
+    showNotification("All clips in folder checked!", type = "message")
+  }
+
+  
 }

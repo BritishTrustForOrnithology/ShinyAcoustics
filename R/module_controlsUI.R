@@ -7,6 +7,7 @@ create_controlsUI <- function(id) {
   ns <- NS(id)
   tagList(
     fluidRow(
+      textOutput(ns("n_files")),
       div(
         style="text-align:center;",
         actionButton(inputId = ns("btn_first"),
