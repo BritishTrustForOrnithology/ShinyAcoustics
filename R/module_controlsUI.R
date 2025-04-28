@@ -12,16 +12,16 @@ create_controlsUI <- function(id) {
         style="text-align:center;",
         actionButton(inputId = ns("btn_first"),
                      label = div(icon('caret-left', verify_fa=FALSE), "First"),
-                     style="margin-top:10px; margin-bottom:10px; background-color: green; color: white;"),
+                     style="margin-top:10px; margin-bottom:10px; background-color: green; color: white; line-height: 15px"),
         actionButton(inputId = ns("btn_previous"),
                      label = div(icon('angle-left', verify_fa=FALSE), "Previous"),
-                     style="margin-top:10px; margin-bottom:10px; background-color: green; color: white;"),
+                     style="margin-top:10px; margin-bottom:10px; background-color: green; color: white; line-height: 15px"),
         actionButton(inputId = ns('btn_next'),
                      label = div("Next", icon('angle-right', verify_fa=FALSE)),
-                     style="margin-top:10px; margin-bottom:10px; background-color: green; color: white;"),
+                     style="margin-top:10px; margin-bottom:10px; background-color: green; color: white; line-height: 15px"),
         actionButton(inputId = ns('btn_last'),
                      label = div("Last", icon('caret-right', verify_fa=FALSE)),
-                     style="margin-top:10px; margin-bottom:10px; background-color: green; color: white;")
+                     style="margin-top:10px; margin-bottom:10px; background-color: green; color: white; line-height: 15px")
       ),
     ), #endFR
 
@@ -39,6 +39,11 @@ create_controlsUI <- function(id) {
       #right column
       column(
         width = 6,
+        #fluidRow(
+        #  actionButton(inputId = 'btn_true', label = 'True', class = "btn-primary",style = "width: 150px; height: 33.6px; padding: 0; line-height: 33px"),
+        #  actionButton(inputId = 'btn_false', label = 'False', class = "btn-primary",style = "width: 150px; height: 33.6px; padding: 0; line-height: 33px"),
+        #  actionButton(inputId = 'btn_unknown', label = 'Unknown', class = "btn-primary",style = "width: 150px; height: 33.6px; padding: 0; line-height: 33px"),
+        #),
         fluidRow(
           uiOutput(outputId = ns('player'))
         ),
