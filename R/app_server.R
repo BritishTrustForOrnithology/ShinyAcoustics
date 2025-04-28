@@ -13,12 +13,6 @@ app_server <- function(input, output, session) {
 
 
 
-  # file_database <- reactiveVal(parseFilePaths(volumes, input$file_db))
-  # path_audio <- reactiveVal(parseDirPath(volumes, input$path_audio))
-
-  #MODULES
-
-
   file_database <- reactiveVal(NULL)
   db_connection <- reactiveVal(NULL)
   observeEvent(input$file_db, {
@@ -108,7 +102,7 @@ app_server <- function(input, output, session) {
   })
 
 
-
+  #UTILITIES MODULES
   createDbServer("dbcreator")
   exportDbServer("dbexporter", con = db_connection)
 
