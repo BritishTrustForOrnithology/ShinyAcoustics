@@ -10,6 +10,7 @@
 app_ui <- function() {
   data("splist")
 
+
   page_fluid(
     shinyjs::useShinyjs(),
     # Initialize shinyjs
@@ -87,11 +88,11 @@ app_ui <- function() {
                 selectizeInput(
                   inputId = 'batch_species',
                   label = 'Species:',
-                  choices = c("NA", splist$select_val),
+                  choices = c("None", splist$select_val),
                   multiple = FALSE,
                   options = list(placeholder = "Start typing...",
                                  dropdownParent = 'body'),
-                  selected = 'NA'
+                  selected = 'None'
                 ),
               ),
               column(
@@ -104,9 +105,18 @@ app_ui <- function() {
               ),
               column(
                 width = 3,
-                textInput(inputId = 'batch_option', label = 'Optional field:', value = 'NA')
+                textInput(inputId = 'batch_notes', label = 'Notes:', value = 'NA')
               )
-            )#end FR
+            ),#end FR
+            fluidRow(
+              column(
+                width = 11
+                ),
+              column(
+                width = 1,
+                actionButton(inputId = 'batch_validate', label = 'Next', class = "btn-primary")
+              ),
+            )
           ) #end cb
         ) #end c),
       ), #end cl

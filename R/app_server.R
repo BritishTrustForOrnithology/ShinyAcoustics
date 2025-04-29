@@ -48,6 +48,37 @@ app_server <- function(input, output, session) {
   })
 
 
+  #validate the batch parameters
+  observeEvent(input$batch_validate, {
+    success <- 1
+    message <- 'Before you can proceed you must:'
+    if(is.null(file_database() )) {
+      success <- 0
+      message <- paste(message,("<br>- select a results database (see Utilities to create one)."))
+    }
+    if(!nzchar(input$user)) {
+      success <- 0
+      message <- paste(message,("<br>- enter your name."))
+    }
+    if(!nzchar(input$batch_species)) {
+      success <- 0
+      message <- paste(message,("<br>- select a species (or select None)."))
+    }
+    if(!nzchar(input$batch_location)) {
+      success <- 0
+      message <- paste(message,("<br>- enter a location (or NA)."))
+    }
+    if(!nzchar(input$batch_time)) {
+      success <- 0
+      message <- paste(message,("<br>- enter a time period (or NA)."))
+    }
+    if(success == 0) {
+      showNotification(HTML(message), type = "error")
+    } else {
+      bslib::accordion_panel_open(id = "acc", value = "verify")
+    }
+  })
+  
   #capture the batch parameters
   batch_params <- reactiveValues(
     user = NULL,
