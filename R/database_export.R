@@ -3,8 +3,8 @@
 #' @import RSQLite
 #' @import DBI
 #'
-#' @export
-#'
+#' @param con = database connection object
+#' @param file_db = reactive object giving path and name of database 
 database_export <- function(con, file_db) {
 
   #get the data
