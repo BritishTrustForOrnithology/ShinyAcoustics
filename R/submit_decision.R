@@ -3,7 +3,15 @@
 #' @param for_training, bool, whether the clip should be nominated for training
 #' @export
 
-submit_decision <- function(state, input, session, splist, batch_params, path_audio, con, recent_labels, for_training = FALSE) {
+submit_decision <- function(state, 
+                            input, 
+                            session, 
+                            splist, 
+                            batch_params, 
+                            path_audio, 
+                            con, 
+                            recent_labels, 
+                            for_training = FALSE) {
   req(state$file_current)
   req(input$select_label)
 
@@ -29,11 +37,11 @@ submit_decision <- function(state, input, session, splist, batch_params, path_au
   rs <- dbSendQuery(con(), 'INSERT INTO verifications (name_validator, batch_species, batch_location, batch_time, file_audio, identity, for_training, timestamp) VALUES (?, ?, ?, ?, ?, ?, ?, ?);', db_row_data)
   dbClearResult(rs)
 
-  # Update recent labels (max 5)
+  # Update recent labels (max 10)
   new_label <- input$select_label
   if (any(nzchar(new_label))) {
-    updated <- unique(c(new_label, recent_labels()))
-    recent_labels(head(updated, 5))  # Keep only last 5 unique
+    updated <- c(new_label, recent_labels())
+    recent_labels(head(updated, 10))  # Keep only last n unique
   }
 
   # Clear form

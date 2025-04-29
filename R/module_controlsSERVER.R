@@ -12,6 +12,11 @@ create_controlsSERVER <- function(id,
                                   ) {
   moduleServer(id, function(input, output, session) {
 
+    data("splist")
+    adds <- data.frame(select_val = c('True','False','Unknown'),
+                       code = c('TRUE', 'FALSE', 'UNKNOWN'))
+    splist <- rbind(adds, splist)
+    
 
     # Create a container for all reactive state
     state <- reactiveValues(
@@ -65,6 +70,33 @@ create_controlsSERVER <- function(id,
       }
     })
 
+    output$nav_buttons <- renderUI({
+      #req(state$n_files)
+      tagList(
+        div(
+          style="text-align:center;",
+          actionButton(
+            inputId = session$ns("btn_first"),
+            label = div(icon('caret-left', verify_fa = FALSE), "First"),
+            style = "margin-top:10px; margin-bottom:10px; background-color: green; color: white; line-height: 15px"
+          ), actionButton(
+            inputId = session$ns("btn_previous"),
+            label = div(icon('angle-left', verify_fa = FALSE), "Previous"),
+            style = "margin-top:10px; margin-bottom:10px; background-color: green; color: white; line-height: 15px"
+          ), actionButton(
+            inputId = session$ns('btn_next'),
+            label = div("Next", icon('angle-right', verify_fa = FALSE)),
+            style = "margin-top:10px; margin-bottom:10px; background-color: green; color: white; line-height: 15px"
+          ), actionButton(
+            inputId = session$ns('btn_last'),
+            label = div("Last", icon('caret-right', verify_fa = FALSE)),
+            style = "margin-top:10px; margin-bottom:10px; background-color: green; color: white; line-height: 15px"
+          )
+        )
+      )
+    })
+    
+    
 
     #observers for the file navigation buttons
     # Navigation buttons
@@ -193,7 +225,20 @@ create_controlsSERVER <- function(id,
 
     # Store recent labels
     recent_labels <- reactiveVal(character(0))
+    #recent_labels <- reactiveVal(c("Y","N","?"))
+    #recent_labels <- reactiveVal(c("True","False","Unknown"))
 
+    
+    observeEvent(input$btn_true, {
+      updateSelectizeInput(session, "select_label", selected = 'True')
+    })
+    observeEvent(input$btn_false, {
+      updateSelectizeInput(session, "select_label", selected = 'False')
+    })
+    observeEvent(input$btn_unknown, {
+      updateSelectizeInput(session, "select_label", selected = 'Unknown')
+    })
+    
 
     #Observer for the submit buttons, and increment and archive
     observeEvent(input$btn_submit, {
@@ -236,6 +281,7 @@ create_controlsSERVER <- function(id,
       labels <- recent_labels()
       if (length(labels) == 0) return(NULL)
 
+      #labels <- unique(c('Y','N','?',labels))
       tags$div(
         tags$h5("Recent Labels:"),
         lapply(seq_along(labels), function(i) {
@@ -251,9 +297,15 @@ create_controlsSERVER <- function(id,
     
     
     #simple outputs
-    output$n_files <- renderText(
+    output$n_files <- renderText({
+      req(state$n_files)
       paste0("Number of files to check = ",state$n_files)
-    )
+    })
+
+    output$filename <- renderText({
+      req(state$file_current)
+      paste0(state$file_current)
+    })
     
     
     return(state)
