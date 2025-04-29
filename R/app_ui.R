@@ -5,22 +5,24 @@
 #' @import shinyWidgets
 #' @import shinyjs
 
-#' @export
-
 app_ui <- function() {
   data("splist")
 
 
   page_fluid(
     shinyjs::useShinyjs(),
-    # Initialize shinyjs
     tags$head(
       tags$link(rel = "stylesheet", type = "text/css", href = "www/styles.css"),
-      tags$head(
-        tags$style(HTML(".card-body { overflow: visible !important; }  "))
-      )
+      #allow dropdown to overflow card
+      tags$style(HTML(".card-body { overflow: visible !important; }  "))
     ),
-
+    
+    #script needed to register the shinyDirButton outside modal
+    tags$script(HTML("Shiny.addCustomMessageHandler('clickDirChooser', function(id) {
+            document.getElementById(id).click();
+          });")
+      ),
+    
     #add the banner, logo and title
     ui_title_panel(app_title = 'Clip validator'),
 
@@ -37,6 +39,7 @@ app_ui <- function() {
         ),
 
         layout_columns(
+          col_widths = c(3,9),
           card(
             card_header(class = "bg-dark", 'Step 1: Name of validator'),
             card_body(
@@ -55,19 +58,36 @@ app_ui <- function() {
               'Step 2: Results location'
             ),
             card_body(
+              tags$p('Create a new database to hold verification results, or select an existing one:'),
               fluidRow(
                 column(
-                  width = 4,
-                  shinyFilesButton(
-                    id = 'file_db',
-                    label = 'Select database',
-                    title = 'Select sqlite database file',
-                    multiple = FALSE,
-                    class = "btn-primary"
+                  width = 3,
+                  # Hidden directory chooser outside the modal
+                  div(
+                    style = "display:none;",
+                    shinyDirButton("dir", "Choose directory", "Please select a folder")
+                  ),
+                  #button to trigger modal popup for db creation
+                  actionButton(
+                    inputId = 'btn_db_popup',
+                    label = 'Create new database',
+                    class = 'btn-primary',
+                    style = "margin: 5px;"
                   )
                 ),
                 column(
-                  width = 8,
+                  width = 3,
+                  shinyFilesButton(
+                    id = 'file_db',
+                    label = 'Select existing database',
+                    title = 'Select sqlite database file',
+                    multiple = FALSE,
+                    class = "btn-primary",
+                    style = "margin: 5px;"
+                  )
+                ),
+                column(
+                  width = 6,
                   div(
                     style = "color: #A42A04; font-weight: bold; font-size: small",
                     textOutput('path_database')
@@ -81,14 +101,14 @@ app_ui <- function() {
         layout_columns(card(
           card_header(class = "bg-dark", 'Step 3: Parameters for this batch'),
           card_body(
-            tags$p("Complete relevant parameters (or enter NA) for this batch. These will be stored with verification decisions for later analysis"),
+            tags$p("Complete relevant parameters (or enter NA) for this batch. These will be stored with verification decisions for later analysis."),
             fluidRow(
               column(
                 width = 3,
                 selectizeInput(
                   inputId = 'batch_species',
                   label = 'Species:',
-                  choices = c("None", splist$select_val),
+                  choices = c("Various", splist$select_val),
                   multiple = FALSE,
                   options = list(placeholder = "Start typing...",
                                  dropdownParent = 'body'),
@@ -132,7 +152,7 @@ app_ui <- function() {
             card(
               card_header(
                 class = "bg-dark",
-                'Step 4 - Audio folder choice'
+                'Step 4 - Audio folder choice & blinding options'
               ),
               card_body(
                 fluidRow(
@@ -161,9 +181,9 @@ app_ui <- function() {
                       value = TRUE
                     ),
                     checkboxInput(
-                      inputId = 'show_filename',
-                      label = 'Show file name',
-                      value = FALSE
+                      inputId = 'hide_wavname',
+                      label = 'Hide wav name',
+                      value = TRUE
                     )
                   ),
                   column(
@@ -191,10 +211,6 @@ app_ui <- function() {
           '<span style="font-size:28px; font-weight:bold;">Utilities</span>'
         ),
         fluidRow(
-          column(
-            width = 3,
-            createDbUI("dbcreator")
-          ), #end col
           column(
             width = 3,
             exportDbUI("dbexporter")

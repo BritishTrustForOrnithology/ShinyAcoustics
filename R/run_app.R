@@ -15,5 +15,5 @@ run_app <- function() {
   shiny::addResourcePath("www", system.file("www", package = "ShinyAcoustics"))
   
   #initialise the app
-  shiny::shinyApp(ui = app_ui, server = app_server)
+  shiny::shinyApp(ui = app_ui, server = app_server, options = list(launch.browser=TRUE))
 }

@@ -1,7 +1,7 @@
 #' Function to submit the verification decision
 #'
 #' @param for_training, bool, whether the clip should be nominated for training
-#' @export
+
 
 submit_decision <- function(state, 
                             input, 
@@ -19,7 +19,11 @@ submit_decision <- function(state,
   selected_species <- subset(splist, select_val %in% input$select_label)
 
   # Construct the label string
-  label <- paste0('[', paste0("'", selected_species$code, "'", collapse = ','), ']')
+  # if(selected_species %in% c('TRUE','FALSE','UNKNOWN')) {
+  #   label <- selected_species
+  # } else {
+    label <- paste0('[', paste0("'", selected_species$code, "'", collapse = ','), ']')
+  # }
 
   # Create the database row content
   db_row_data <- list(
@@ -40,7 +44,7 @@ submit_decision <- function(state,
   # Update recent labels (max 10)
   new_label <- input$select_label
   if (any(nzchar(new_label))) {
-    updated <- c(new_label, recent_labels())
+    updated <- unique(c(new_label, recent_labels()))
     recent_labels(head(updated, 10))  # Keep only last n unique
   }
 
@@ -76,5 +80,7 @@ submit_decision <- function(state,
     showNotification("All clips in folder checked!", type = "message")
   }
 
+  #update history
+  state$history <- state$history + 1
   
 }

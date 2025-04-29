@@ -3,7 +3,7 @@
 #' @import RSQLite
 #' @import DBI
 #'
-#' @export
+
 
 database_create <- function(path_db, name_db = 'verifications.sqlite') {
 

@@ -2,19 +2,75 @@
 #' @import shiny
 #' @import shinyFiles
 #' @import shinyjs
-
-#' @export
+#' @import bslib
+#' @import ggplot2
 
 app_server <- function(input, output, session) {
 
+
+  
+  
   #SHINYFILES STUFF
   shinyFileChoose(input, 'file_db', roots = volumes, session = session, filetypes=c('sqlite'))
-  shinyDirChoose(input, 'path_audio', roots = volumes, session = session, filetypes = c(''))
-
-
-
+  shinyDirChoose(input, 'path_audio', roots = volumes, session = session)
+  shinyDirChoose(input, "dir", roots = volumes, session = session)
+  
+  selected_dir <- reactiveVal(NULL)
   file_database <- reactiveVal(NULL)
   db_connection <- reactiveVal(NULL)
+  
+
+  observeEvent(input$dir, {
+    dir_path <- parseDirPath(volumes, input$dir)
+    selected_dir(dir_path)
+  })
+  
+  observeEvent(input$trigger_dir, {
+    # Programmatically click the hidden dir button
+    session$sendCustomMessage("clickDirChooser", "dir")
+  })
+  
+  observeEvent(input$btn_create_db, {
+    req(selected_dir(), input$new_db_filename)
+    outcome <- database_create(path_db = selected_dir(), name_db = input$new_db_filename)
+
+    if(outcome==0) {
+      showNotification("Database already exists, cannot overwrite. Please try again!", type = "error")
+    }
+    if(outcome==1) {
+      #register and connect this new db
+      filepath <- file.path(selected_dir(), input$new_db_filename)
+      print(filepath)
+      file_database(filepath)
+      db_connection(DBI::dbConnect(RSQLite::SQLite(), filepath))
+      showNotification("Database created and connected. Ready to start verification", type = "message")
+    }
+  })
+  
+
+
+  
+  observeEvent(input$btn_db_popup, {
+    showModal(modalDialog(
+      title = "Create new database",
+      tags$p("Create an empty database ready to hold verification decisions."),
+      
+      actionButton("trigger_dir", "Choose directory", class = "btn-primary"),
+      
+      textInput(
+        inputId = "new_db_filename",
+        label = "Database filename (must have .sqlite extension):",
+        value = "verification.sqlite"
+      ),
+      
+      actionButton("btn_create_db", "Create database", class = "btn-primary")
+    ))
+  })
+    
+   
+  
+
+
   observeEvent(input$file_db, {
     # Parse the file path
     fileinfo <- parseFilePaths(volumes, input$file_db)
@@ -36,6 +92,7 @@ app_server <- function(input, output, session) {
     file_database(filepath)
     # Now safe to connect
     db_connection(DBI::dbConnect(RSQLite::SQLite(), filepath))
+    showNotification("Database connected, ready to start verification", type = "message")
   })
 
 
@@ -54,7 +111,7 @@ app_server <- function(input, output, session) {
     message <- 'Before you can proceed you must:'
     if(is.null(file_database() )) {
       success <- 0
-      message <- paste(message,("<br>- select a results database (see Utilities to create one)."))
+      message <- paste(message,("<br>- create or select a results database."))
     }
     if(!nzchar(input$user)) {
       success <- 0
@@ -99,11 +156,13 @@ app_server <- function(input, output, session) {
 
   #create and manage the controls for the current folder
   state_controls <- create_controlsSERVER(id = "controls",
+                                          file_database,
                                           con = db_connection,
                                           batch_params,
                                           path_audio,
                                           start_click = reactive(input$btn_start),
-                                          randomise = reactive(input$random_order)
+                                          randomise = reactive(input$random_order),
+                                          blind = reactive(input$hide_wavname)
                                           )
 
 
@@ -123,7 +182,7 @@ app_server <- function(input, output, session) {
 
   #OUTPUTS
   output$path_database <- renderText({
-    req(input$file_db)
+    req(file_database())
     file_database()
   })
 
@@ -134,7 +193,7 @@ app_server <- function(input, output, session) {
 
 
   #UTILITIES MODULES
-  createDbServer("dbcreator")
+  #createDbServer("dbcreator")
   exportDbServer("dbexporter", con = db_connection)
 
 
