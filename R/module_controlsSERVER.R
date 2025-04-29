@@ -1,14 +1,18 @@
 library(DBI)
 library(RSQLite)
+library(ggplot2)
+
 
 
 #module for controls
 create_controlsSERVER <- function(id,
-                                  con,
+                                  file_database,
+                                  con=NULL,
                                   batch_params,
                                   path_audio,
                                   start_click,
-                                  randomise
+                                  randomise,
+                                  blind
                                   ) {
   moduleServer(id, function(input, output, session) {
 
@@ -17,6 +21,20 @@ create_controlsSERVER <- function(id,
                        code = c('TRUE', 'FALSE', 'UNKNOWN'))
     splist <- rbind(adds, splist)
     
+    #make submit and peek buttons disabled if no database connected
+    observe({
+      if(is.null(file_database())) {
+        shinyjs::disable("btn_submit")
+        shinyjs::disable("btn_submit4train")
+        shinyjs::disable("btn_peek")
+      } else {
+        shinyjs::enable("btn_submit")
+        shinyjs::enable("btn_submit4train")
+        shinyjs::enable("btn_peek")
+      }
+    })
+    
+    
 
     # Create a container for all reactive state
     state <- reactiveValues(
@@ -24,7 +42,8 @@ create_controlsSERVER <- function(id,
       n_files = NULL,
       file_counter = NULL,
       file_current = NULL,
-      path_checked = NULL
+      path_checked = NULL,
+      history = 0
     )
 
     #on click, get list of audio files, set index to first file
@@ -128,7 +147,45 @@ create_controlsSERVER <- function(id,
       nav_button_toggles(numfiles = state$n_files, nthfile = state$file_counter)
     })
 
-
+    observe({
+      if(state$history>0) shinyjs::show('btn_undo')
+      if(state$history==0) shinyjs::hide('btn_undo')
+    })  
+    
+    
+    observeEvent(input$btn_undo,{
+      req(state$history>0)
+      
+      #get the last entry in the database
+      query_get <- paste0("SELECT * FROM verifications WHERE ROWID = (SELECT MAX(ROWID) FROM verifications);")
+      last_row <- dbGetQuery(con(), query_get)
+      
+      #move the clip back from the checked folder
+      old_loc <- file.path(dirname(last_row$file_audio), 'checked', basename(last_row$file_audio))
+      new_loc <- last_row$file_audio
+      moved <- file.rename(old_loc, new_loc)
+      
+      if(moved==TRUE) {
+        #inset the file back into the file list, in first position
+        state$audio_files <- c(basename(last_row$file_audio), state$audio_files)
+        
+        #update the file totals
+        state$n_files <- state$n_files + 1
+        
+        #update file counter and file_current
+        state$file_counter <- 1
+        state$file_current <- state$audio_files[state$file_counter]
+        
+        
+        #update history counter
+        state$history <- state$history - 1
+        
+        #delete the row from the database
+        query_remove <- paste0("DELETE FROM verifications WHERE ROWID = (SELECT MAX(ROWID) FROM verifications);")
+        ex <- dbExecute(con(), query_remove)
+      }
+      
+    })
 
 
     # Reactive to load and prepare the wav
@@ -294,6 +351,42 @@ create_controlsSERVER <- function(id,
       )
     })
 
+    observeEvent(input$btn_peek, {
+      query_get <- paste0("SELECT * FROM verifications WHERE batch_species == '",
+                          batch_params$species , 
+                          "'  AND batch_location == '",
+                          batch_params$location,
+                          "' AND batch_time == '",
+                          batch_params$time,
+                          "';")
+      results <- dbGetQuery(con(), query_get)
+      if(nrow(results)==0) {
+        showNotification("No results to show yet. Do some verification first.", type = "message")
+      } else {
+        
+        results$for_training <- ifelse(results$for_training==1, 'Yes','No')
+        
+        #make the plot
+        output$totalsplot <- renderPlot({
+          ggplot2::ggplot() +
+            geom_bar(data = results, aes(x = identity, fill = for_training)) +
+            labs(x = 'Verification decision', 
+                 y = 'Number of clips', 
+                 title = 'Totals for current batch', 
+                 fill = 'Marked for training') +
+            theme_classic() +
+            theme(legend.position = 'top')
+        })
+        
+        #show plot in modal. Modal could contain other stuff too
+        showModal(modalDialog(
+          title = "Totals for current batch",
+          plotOutput(session$ns('totalsplot'))
+        ))
+      }
+    })
+      
+    
     
     
     #simple outputs
@@ -302,11 +395,15 @@ create_controlsSERVER <- function(id,
       paste0("Number of files to check = ",state$n_files)
     })
 
-    output$filename <- renderText({
+    output$wav_name <- renderText({
       req(state$file_current)
-      paste0(state$file_current)
+
+      if (blind()==FALSE) {
+        paste0("Current wav = ", state$file_current)
+      } else {
+        "Current wav = Blinded"
+      }
     })
-    
     
     return(state)
   })
