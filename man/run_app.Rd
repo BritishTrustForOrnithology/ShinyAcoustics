@@ -4,7 +4,7 @@
 \alias{run_app}
 \title{run the main app}
 \usage{
-run_app(vols)
+run_app()
 }
 \description{
 run the main app
