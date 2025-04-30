@@ -15,12 +15,12 @@ RoxygenNote: 7.3.2
 Depends: 
     R (>= 3.5)
 Imports:
-    DBI
-    RSQLite
-    bsicons
-    bslib
-    ggplot2
-    shiny
-    shinyFiles
-    shinyWidgets
+    DBI,
+    RSQLite,
+    bsicons,
+    bslib,
+    ggplot2,
+    shiny,
+    shinyFiles,
+    shinyWidgets,
     shinyjs
