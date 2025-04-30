@@ -5,7 +5,7 @@
 #' @export
 
 
-run_app <- function() {
+run_clip_verifier <- function() {
   
   #get the drive letters
   volumes <<- shinyFiles::getVolumes()()
