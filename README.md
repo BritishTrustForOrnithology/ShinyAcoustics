@@ -51,6 +51,7 @@ run_clip_verifier()
 
 4. The app will open in a browser window. When you have completed verifying you 
 can simply close the browser and then hit the red STOP button in the toolbar in R. 
+If asked whether to save workspace, click No. 
 
 
 # Tips for using the app to verify audio clips
