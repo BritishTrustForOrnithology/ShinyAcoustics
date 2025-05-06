@@ -21,7 +21,7 @@ in a web browser.
 
 # Installation
 
-1. For users not familiar with R, following steps [here]('https://www.stats.bris.ac.uk/R/') to install the R software.
+1. For users not familiar with R, following steps [here](https://www.stats.bris.ac.uk/R/) to install the R software.
 2. Start the R program using the desktop shortcut or from the start menu. 
 3. At the command prompt paste the following command to install the ShinyAcoustics 
 package. Note you may be prompted to update existing packages, if so select 1 (All). 
