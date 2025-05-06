@@ -1,8 +1,8 @@
 #' @import shiny
 #' @import shinyFiles
 #' @import bslib
-#' @import bsicons
-#' @import shinyWidgets
+#@import bsicons
+#@import shinyWidgets
 #' @import shinyjs
 
 app_ui <- function() {
