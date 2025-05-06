@@ -21,7 +21,9 @@ in a web browser.
 
 # Installation
 
-1. For users not familiar with R, following steps [here](https://www.stats.bris.ac.uk/R/) to install the R software.
+1. For users not familiar with R, following steps [here](https://www.stats.bris.ac.uk/R/) 
+to install the R software. (For users proficient with R and RStudio, the app can be 
+run from RStudio as any normal R code.)
 2. Start the R program using the desktop shortcut or from the start menu. 
 3. At the command prompt paste the following command to install the ShinyAcoustics 
 package. Note you may be prompted to update existing packages, if so select 1 (All). 
@@ -46,6 +48,10 @@ library(ShinyAcoustics)
 ```
 run_clip_verifier()
 ```
+
+4. The app will open in a browser window. When you have completed verifying you 
+can simply close the browser and then hit the red STOP button in the toolbar in R. 
+
 
 # Tips for using the app to verify audio clips
 
