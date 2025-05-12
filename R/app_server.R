@@ -1,7 +1,10 @@
 #' main server function
 #' @import shiny
 #' @import shinyFiles
-#' @import shinyjs
+#' @importFrom shinyjs show
+#' @importFrom shinyjs hide
+#' @importFrom shinyjs enable
+#' @importFrom shinyjs disable
 #' @import bslib
 #' @import ggplot2
 

@@ -3,7 +3,7 @@
 #' @import bslib
 #@import bsicons
 #@import shinyWidgets
-#' @import shinyjs
+#' @importFrom shinyjs useShinyjs
 
 app_ui <- function() {
   data("splist")
