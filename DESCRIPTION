@@ -18,9 +18,7 @@ Imports:
     DBI,
     RSQLite,
     bsicons,
-    bslib,
     ggplot2,
     shiny,
     shinyFiles,
-    shinyWidgets,
     shinyjs
