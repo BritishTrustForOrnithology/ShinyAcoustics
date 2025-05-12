@@ -25,13 +25,20 @@ in a web browser.
 to install the R software. (For users proficient with R and RStudio, the app can be 
 run from RStudio as any normal R code.)
 2. Start the R program using the desktop shortcut or from the start menu. 
-3. At the command prompt paste the following command to install the ShinyAcoustics 
-package. Note you may be prompted to update existing packages, if so select 1 (All). 
-Wait while R updates itself, adds any dependencies of ShinyAcoustics and finally 
-installs the ShinyAcoustics pacakge: 
+3. At the command prompt paste the following command to install the 'remotes' 
+package. Note you may be prompted to update existing packages, if so select 1 (All):
 
 ```
-devtools::install_github("https://github.com/BritishTrustForOrnithology/ShinyAcoustics")
+install.packages('remotes')
+```
+
+4. Next, paste the following command to install the ShinyAcoustics 
+package. Note you may be prompted to update existing packages, if so select 1 (All). 
+Wait while R updates itself, adds any dependencies of ShinyAcoustics and finally 
+installs the ShinyAcoustics package: 
+
+```
+remotes::install_github("https://github.com/BritishTrustForOrnithology/ShinyAcoustics")
 ```
 
 # Running the app
