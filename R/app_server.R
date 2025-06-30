@@ -145,14 +145,14 @@ app_server <- function(input, output, session) {
     species = NULL,
     location = NULL,
     time = NULL,
-    optfield = NULL
+    notes = NULL
   )
   observe({
     batch_params$user <- input$user
     batch_params$species <- input$batch_species
     batch_params$location <- input$batch_location
     batch_params$time     <- input$batch_time
-    batch_params$optfield <- input$batch_option
+    batch_params$notes <- input$batch_notes
   })
 
 
