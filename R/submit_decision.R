@@ -15,6 +15,7 @@ submit_decision <- function(state,
   req(state$file_current)
   req(input$select_label)
 
+  
   # Get the codes for these species
   selected_species <- subset(splist, select_val %in% input$select_label)
 
@@ -31,6 +32,7 @@ submit_decision <- function(state,
     batch_params$species,
     batch_params$location,
     batch_params$time,
+    batch_params$notes,
     file.path(path_audio(), state$file_current),
     label,
     for_training,
@@ -38,7 +40,7 @@ submit_decision <- function(state,
   )
 
   # Add the decision to the database
-  rs <- dbSendQuery(con(), 'INSERT INTO verifications (name_validator, batch_species, batch_location, batch_time, file_audio, identity, for_training, timestamp) VALUES (?, ?, ?, ?, ?, ?, ?, ?);', db_row_data)
+  rs <- dbSendQuery(con(), 'INSERT INTO verifications (name_validator, batch_species, batch_location, batch_time, batch_notes, file_audio, identity, for_training, timestamp) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);', db_row_data)
   dbClearResult(rs)
 
   # Update recent labels (max 10)
