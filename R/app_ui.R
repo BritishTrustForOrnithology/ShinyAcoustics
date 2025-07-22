@@ -164,7 +164,8 @@ app_ui <- function() {
                         icon = icon('folder-open', verify_fa = FALSE),
                         title = 'Select folder containing original audio files',
                         class = "btn-primary"
-                      )
+                      ),
+                      textInput(inputId = 'path_audio_str', label = 'Or, copy-paste path here (use with care!)', width = 600),
                     ),
                   column(
                     width = 3,
