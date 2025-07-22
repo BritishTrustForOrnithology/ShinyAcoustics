@@ -102,12 +102,27 @@ app_server <- function(input, output, session) {
 
 
 
+  #capture the path for audio, either from button press, or from manual text field
   path_audio <- reactiveVal(NULL)
   observeEvent(input$path_audio, {
-    path_audio(parseDirPath(volumes, input$path_audio))
+    req(input$path_audio)
+    parsed <- tryCatch({
+      shinyFiles::parseDirPath(volumes, input$path_audio)
+    }, error = function(e) NULL)
+    if (!is.null(parsed)) {
+      path_audio(parsed)
+    }
   })
-
-
+  # Update when a manual path is entered
+  observeEvent(input$path_audio_str, {
+    req(nzchar(input$path_audio_str))  # ensure it's not empty
+    #fix slashes
+    cleaned_path <- chartr("\\", "/", input$path_audio_str)
+    path_audio(cleaned_path)
+  })
+  
+  
+  
   #validate the batch parameters
   observeEvent(input$batch_validate, {
     success <- 1
