@@ -8,7 +8,7 @@
 #' @import bslib
 #' @import ggplot2
 
-app_server <- function(input, output, session) {
+app_verifier_full_server <- function(input, output, session) {
 
 
   
