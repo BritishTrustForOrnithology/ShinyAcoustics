@@ -2,20 +2,22 @@
 #' 
 #' @import shiny
 #' 
-#' @param volumes = named list providing alternative drives and shortcuts
+#' @param audiodirs = named list providing alternative drives and shortcuts
 #' @param choices = optional list to populate verification buttons. Defaults to 
 #' True, False and Unknown if not provided
 #' 
 #' @export
+#' @examples
+#' run_simple_clip_verifier(audiodirs = c("clips", "E:/myaudio/clips"), choices = c('BT','GT','ST','SG))
+#' 
 
-
-run_simple_clip_verifier <- function(volumes=NULL, choices = NULL) {
+run_simple_clip_verifier <- function(audiodirs=NULL, choices = NULL) {
   
   #get the drive letters
-  if(!is.null(volumes)) {
-    #volumes <<- shinyFiles::getVolumes()()
-    #volumes <<- c(volumes, "Home" = fs::path_home(), "R Project" = getwd())
-    volumes <<- c("Home" = fs::path_home(), "R Project" = getwd())
+  if(!is.null(audiodirs)) volumes <<- audiodirs
+  if(is.null(audiodirs)) {
+    volumes <<- shinyFiles::getVolumes()()
+    volumes <<- c(volumes, "Home" = fs::path_home(), "R Project" = getwd())
   }
   
   #use default choices if none provided
