@@ -5,7 +5,7 @@
 #@import shinyWidgets
 #' @importFrom shinyjs useShinyjs
 
-app_ui <- function() {
+app_verifier_full_ui <- function() {
   data("splist")
 
 
