@@ -7,7 +7,7 @@
 #' @export
 
 
-run_clip_verifier <- function(audiodirs=NULL) {
+run_full_clip_verifier <- function(audiodirs=NULL) {
 
   #get the drive letters
   if(!is.null(audiodirs)) volumes <<- audiodirs
