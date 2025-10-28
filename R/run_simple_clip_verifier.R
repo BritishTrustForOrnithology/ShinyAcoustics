@@ -8,7 +8,7 @@
 #' 
 #' @export
 #' @examples
-#' run_simple_clip_verifier(audiodirs = c("clips", "E:/myaudio/clips"), choices = c('BT','GT','ST','SG))
+#' run_simple_clip_verifier(audiodirs = c("clips" = "E:/myaudio/clips"), choices = c('BT','GT','ST','SG))
 #' 
 
 run_simple_clip_verifier <- function(audiodirs=NULL, choices = NULL) {

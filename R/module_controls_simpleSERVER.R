@@ -124,6 +124,85 @@ create_controls_simpleSERVER <- function(id,
       if(state$history==0) shinyjs::hide('btn_undo')
     })  
     
+    #dynamic creation of a set of validation buttons based on value list in settings panel 
+    obsList <- list()  # to store observers and make sure only once is created per button
+    output$validation_buttons <- renderUI({
+      val_but_list <- unlist(strsplit(validation_choices, ','))
+      #val_but_list <- unlist(strsplit(input$validation_buttons_list, ','))
+      val_but_list <- trimws(unique(val_but_list))
+      buttons <- as.list(1:length(val_but_list))
+      buttons <- lapply(buttons, function(i)
+      {
+        btName <- paste0("validation_button_",i)
+        # creates an observer only if it doesn't already exists
+        if (is.null(obsList[[btName]])) {
+          # make sure to use <<- to update global variable obsList
+          obsList[[btName]] <<- observeEvent(input[[btName]], {
+            #cat("Button ", i, "pressed\n")
+            moved <- audio_move(path_from = global$path_audio, 
+                                path_to = file.path(global$path_audio, val_but_list[i]),
+                                file_from = global$file_current, 
+                                file_to = global$file_current 
+            )
+            if(moved==TRUE) {
+              #add record to history
+              h1 <- data.frame('path_from' = global$path_audio,
+                               'path_to' = file.path(global$path_audio, val_but_list[i]),
+                               'file_from' = global$file_current,
+                               'file_to' = global$file_current, 
+                               stringsAsFactors = FALSE)
+              
+              
+              #history <<- rbind(history, h1) #<< to add to global history
+              global$history <- rbind(global$history, h1) #<< to add to global history
+              #print(history)
+              
+              #remove file from list
+              global$files_audio <- global$files_audio[global$files_audio != global$file_current]
+              #reduce number of files by one
+              global$n_files <- global$n_files - 1
+              
+              #update file_current if still files to check and not on last file in list
+              if(global$n_files > 0 & global$file_counter <= global$n_files) {
+                global$file_current <- global$files_audio[global$file_counter]
+                #update dropdown
+                if(file_dropdown) updateSelectInput(session, input = "file_picker", choices = global$files_audio, selected=global$file_current)
+              }
+              #update file_current if still files to check and on last file in list
+              if(global$n_files > 0 & global$file_counter > global$n_files) {
+                #must reduce counter by one more to move it back a step to the last remaining file
+                global$file_counter <- global$file_counter - 1
+                global$file_current <- global$files_audio[global$file_counter]
+                #update dropdown
+                if(file_dropdown) updateSelectInput(session, input = "file_picker", choices = global$files_audio, selected=global$file_current)
+              }
+              #no files left
+              if(global$n_files == 0) {
+                global$file_counter <- 0
+                global$file_current <- NULL
+                #update dropdown
+                if(file_dropdown) updateSelectInput(session, input = "file_picker", choices = NULL, selected=NULL)
+                shinyjs::hide('file_count')
+                shinyjs::hide('file_current')
+                shinyalert(title = "Success",
+                           text = "All files in this folder have been verified",
+                           type = "success",
+                           callbackR = message('Callback: No more audio in this folder')
+                )
+              }
+              
+            }
+            
+          })
+        }
+        actionButton(inputId=btName,
+                     label=paste(val_but_list[i]), 
+                     style="background-color: #337ab7; color: #fff; margin-top:5px;margin-bottom:5px;")
+      }
+      )
+    })
+    
+    
     
     observeEvent(input$btn_undo,{
       req(state$history>0)
@@ -252,21 +331,7 @@ create_controls_simpleSERVER <- function(id,
                  type='audio/wav')
     })
 
-    # Store recent labels
-    recent_labels <- reactiveVal(character(0))
-    #recent_labels <- reactiveVal(c("Y","N","?"))
-    #recent_labels <- reactiveVal(c("True","False","Unknown"))
-
     
-    observeEvent(input$btn_true, {
-      updateSelectizeInput(session, "select_label", selected = 'True')
-    })
-    observeEvent(input$btn_false, {
-      updateSelectizeInput(session, "select_label", selected = 'False')
-    })
-    observeEvent(input$btn_unknown, {
-      updateSelectizeInput(session, "select_label", selected = 'Unknown')
-    })
     
 
     #Observer for the submit buttons, and increment and archive
@@ -283,80 +348,35 @@ create_controls_simpleSERVER <- function(id,
         for_training = FALSE
       )
     })
-    observeEvent(input$btn_submit4train, {
-      submit_decision(
-        state = state,
-        input = input,
-        session = session,
-        splist = splist,
-        batch_params = batch_params,
-        path_audio = path_audio,
-        con = con,
-        recent_labels = recent_labels,
-        for_training = TRUE
-      )
-    })
+    
+    
 
+    # observe({
+    #   lapply(seq_along(recent_labels()), function(i) {
+    #     observeEvent(input[[paste0("recent_label_", i)]], {
+    #       updateSelectizeInput(session, "select_label", selected = c(isolate(input$select_label), recent_labels()[i]))
+    #     }, ignoreInit = TRUE)
+    #   })
+    # })
+    # 
+    # output$recentLabelsUI <- renderUI({
+    #   labels <- recent_labels()
+    #   if (length(labels) == 0) return(NULL)
+    # 
+    #   #labels <- unique(c('Y','N','?',labels))
+    #   tags$div(
+    #     tags$h5("Recent Labels:"),
+    #     lapply(seq_along(labels), function(i) {
+    #       actionButton(
+    #         inputId = session$ns(paste0("recent_label_", i)),
+    #         label = labels[i],
+    #         class = "btn-secondary btn-sm m-1"
+    #       )
+    #     })
+    #   )
+    # })
 
-    observe({
-      lapply(seq_along(recent_labels()), function(i) {
-        observeEvent(input[[paste0("recent_label_", i)]], {
-          updateSelectizeInput(session, "select_label", selected = c(isolate(input$select_label), recent_labels()[i]))
-        }, ignoreInit = TRUE)
-      })
-    })
-
-    output$recentLabelsUI <- renderUI({
-      labels <- recent_labels()
-      if (length(labels) == 0) return(NULL)
-
-      #labels <- unique(c('Y','N','?',labels))
-      tags$div(
-        tags$h5("Recent Labels:"),
-        lapply(seq_along(labels), function(i) {
-          actionButton(
-            inputId = session$ns(paste0("recent_label_", i)),
-            label = labels[i],
-            class = "btn-secondary btn-sm m-1"
-          )
-        })
-      )
-    })
-
-    observeEvent(input$btn_peek, {
-      query_get <- paste0("SELECT * FROM verifications WHERE batch_species == '",
-                          batch_params$species , 
-                          "'  AND batch_location == '",
-                          batch_params$location,
-                          "' AND batch_time == '",
-                          batch_params$time,
-                          "';")
-      results <- dbGetQuery(con(), query_get)
-      if(nrow(results)==0) {
-        showNotification("No results to show yet. Do some verification first.", type = "message")
-      } else {
-        
-        results$for_training <- ifelse(results$for_training==1, 'Yes','No')
-        
-        #make the plot
-        output$totalsplot <- renderPlot({
-          ggplot2::ggplot() +
-            geom_bar(data = results, aes(x = identity, fill = for_training)) +
-            labs(x = 'Verification decision', 
-                 y = 'Number of clips', 
-                 title = 'Totals for current batch', 
-                 fill = 'Marked for training') +
-            theme_classic() +
-            theme(legend.position = 'top')
-        })
-        
-        #show plot in modal. Modal could contain other stuff too
-        showModal(modalDialog(
-          title = "Totals for current batch",
-          plotOutput(session$ns('totalsplot'))
-        ))
-      }
-    })
+    
       
     
     

@@ -32,6 +32,8 @@ app_verifier_simple_server <- function(input, output, session) {
     path_audio(cleaned_path)
   })
   
+  
+  
   #create and manage the controls for the current folder
   state_controls <- create_controls_simpleSERVER(id = "controls",
                                           path_audio,

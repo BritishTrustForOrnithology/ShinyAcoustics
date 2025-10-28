@@ -53,27 +53,27 @@ create_controls_simpleUI <- function(id) {
         #standard button row
         fluidRow(
           tags$p('Select one of these standard options:'),
-          div(
-            style = "text-align: center;",
-            actionButton(
-              inputId = ns('btn_true'),
-              label = 'True',
-              class = "btn-primary",
-              style = "width: 100px; height: 30px; margin: 0px 5px 10px; padding: 0;"
-            ), 
-            actionButton(
-              inputId = ns('btn_false'),
-              label = 'False',
-              class = "btn-primary",
-              style = "width: 100px; height: 30px; margin: 0px 5px 10px; line-height: 14px; padding: 0;"
-            ), 
-            actionButton(
-              inputId = ns('btn_unknown'),
-              label = 'Unknown',
-              class = "btn-primary",
-              style = "width: 100px; height: 30px; margin: 0px 5px 10px; line-height: 15px; padding: 0;"
-              )
-            ) #div
+          # div(
+          #   style = "text-align: center;",
+          #   actionButton(
+          #     inputId = ns('btn_true'),
+          #     label = 'True',
+          #     class = "btn-primary",
+          #     style = "width: 100px; height: 30px; margin: 0px 5px 10px; padding: 0;"
+          #   ), 
+          #   actionButton(
+          #     inputId = ns('btn_false'),
+          #     label = 'False',
+          #     class = "btn-primary",
+          #     style = "width: 100px; height: 30px; margin: 0px 5px 10px; line-height: 14px; padding: 0;"
+          #   ), 
+          #   actionButton(
+          #     inputId = ns('btn_unknown'),
+          #     label = 'Unknown',
+          #     class = "btn-primary",
+          #     style = "width: 100px; height: 30px; margin: 0px 5px 10px; line-height: 15px; padding: 0;"
+          #     )
+          #   ) #div
           ), #fr
         
         fluidRow(
